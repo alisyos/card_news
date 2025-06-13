@@ -44,7 +44,7 @@ export async function generateCardNewsContent(input: CardNewsInput): Promise<Car
 }
 
 export async function generateCardImage(imagePrompt: string, additionalRequests: string): Promise<string> {
-  const fullPrompt = getImagePrompt(imagePrompt, additionalRequests);
+  const fullPrompt = getImagePrompt(imagePrompt, additionalRequests, '', '');
 
   const response = await openai.images.generate({
     model: "gpt-image-1",

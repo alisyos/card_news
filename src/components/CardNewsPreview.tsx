@@ -3,7 +3,7 @@
 import { CardNewsOutput } from '@/types/cardNews';
 import Image from 'next/image';
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Download, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Download, Loader2, Image as ImageIcon } from 'lucide-react';
 
 interface CardNewsPreviewProps {
   cardNews: CardNewsOutput;
@@ -54,14 +54,6 @@ export default function CardNewsPreview({
         index === currentPage ? { ...page, [field]: value } : page
       )
     }));
-  };
-
-  const nextPage = () => {
-    setCurrentPage((prev) => (prev + 1) % cardNews.pages.length);
-  };
-
-  const prevPage = () => {
-    setCurrentPage((prev) => (prev - 1 + cardNews.pages.length) % cardNews.pages.length);
   };
 
   const downloadImage = async (imageUrl: string, index: number) => {

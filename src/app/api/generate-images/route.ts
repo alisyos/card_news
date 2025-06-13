@@ -1,13 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { generateCardImage } from '@/lib/openai';
 import { getImagePrompt } from '@/lib/prompts';
-
-interface ImageGenerationRequest {
-  imagePrompts: string[];
-  topic: string;
-  text: string;
-  additionalRequests?: string;
-}
 
 export async function POST(req: Request) {
   try {
