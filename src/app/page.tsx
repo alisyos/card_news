@@ -51,13 +51,16 @@ export default function Home() {
 
     setIsGeneratingImages(true);
     try {
+      const currentPage = cardNews.pages[pageIndex];
       const response = await fetch('/api/generate-images', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          imagePrompts: [cardNews.pages[pageIndex].imagePrompt],
+          imagePrompts: [currentPage.imagePrompt],
+          topic: currentPage.topic,
+          text: currentPage.text,
           additionalRequests,
         }),
       });

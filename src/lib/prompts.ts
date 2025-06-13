@@ -288,10 +288,17 @@ export function getPromptByType(type: PromptType): string {
 }
 
 // 이미지 생성 프롬프트 가져오기
-export function getImagePrompt(imagePrompt: string, additionalRequests: string = ''): string {
-  const basePrompt = getPromptByType('이미지 생성용');
-  
-  return basePrompt
+export function getImagePrompt(
+  imagePrompt: string,
+  additionalRequests: string = '',
+  topic: string,
+  text: string
+): string {
+  const prompt = defaultPrompts['이미지 생성용']
     .replace('{{imagePrompt}}', imagePrompt)
+    .replace('{{topic}}', topic)
+    .replace('{{text}}', text)
     .replace('{{additionalRequests}}', additionalRequests);
+
+  return prompt;
 } 
