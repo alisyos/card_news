@@ -13,6 +13,7 @@ export default function Home() {
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   const [isGeneratingImages, setIsGeneratingImages] = useState(false);
   const [additionalRequests, setAdditionalRequests] = useState('');
+  const [styleOption, setStyleOption] = useState('');
 
   const handleGenerateContent = async (input: CardNewsInput) => {
     setIsGeneratingContent(true);
@@ -52,6 +53,10 @@ export default function Home() {
     setIsGeneratingImages(true);
     try {
       const currentPage = cardNews.pages[pageIndex];
+      let mergedAdditionalRequests = additionalRequests;
+      if (styleOption && styleOption !== '') {
+        mergedAdditionalRequests = `[스타일: ${styleOption}]` + (additionalRequests ? `\n${additionalRequests}` : '');
+      }
       const response = await fetch('/api/generate-images', {
         method: 'POST',
         headers: {
@@ -61,7 +66,7 @@ export default function Home() {
           imagePrompts: [currentPage.imagePrompt],
           topic: currentPage.topic,
           text: currentPage.text,
-          additionalRequests,
+          additionalRequests: mergedAdditionalRequests,
         }),
       });
 
@@ -133,6 +138,8 @@ export default function Home() {
                   onGenerateImages={handleGenerateImages}
                   isGeneratingImages={isGeneratingImages}
                   onCardNewsUpdate={handleCardNewsUpdate}
+                  styleOption={styleOption}
+                  onStyleOptionChange={setStyleOption}
                 />
               </div>
             )}

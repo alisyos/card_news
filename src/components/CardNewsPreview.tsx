@@ -13,6 +13,8 @@ interface CardNewsPreviewProps {
   onGenerateImages: (pageIndex: number) => void;
   isGeneratingImages: boolean;
   onCardNewsUpdate: (updatedCardNews: CardNewsOutput) => void;
+  styleOption?: string;
+  onStyleOptionChange?: (value: string) => void;
 }
 
 export default function CardNewsPreview({ 
@@ -22,7 +24,9 @@ export default function CardNewsPreview({
   onAdditionalRequestsChange,
   onGenerateImages,
   isGeneratingImages,
-  onCardNewsUpdate
+  onCardNewsUpdate,
+  styleOption = '',
+  onStyleOptionChange = () => {},
 }: CardNewsPreviewProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
@@ -92,7 +96,7 @@ export default function CardNewsPreview({
       {/* 전체 카드 목차 */}
       <div>
         <h4 className="text-sm font-medium text-gray-500 mb-2">전체 카드 목차</h4>
-        <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
+        <div className="grid grid-cols-1 gap-2">
           {cardNews.pages.map((page, index) => (
             <button
               key={index}
@@ -109,31 +113,8 @@ export default function CardNewsPreview({
         </div>
       </div>
 
-      {/* 카드 네비게이션 */}
-      <div className="flex items-center justify-center space-x-2">
-        <button
-          onClick={prevPage}
-          disabled={cardNews.pages.length <= 1}
-          className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        
-        <span className="text-sm text-gray-600">
-          {currentPage + 1} / {cardNews.pages.length}
-        </span>
-        
-        <button
-          onClick={nextPage}
-          disabled={cardNews.pages.length <= 1}
-          className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-
       {/* 카드뉴스 제안 */}
-      <div className="border rounded-lg p-4 bg-white shadow-sm">
+      <div className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
         <div className="flex justify-between items-center mb-4 pb-2 border-b">
           <h3 className="text-lg font-semibold text-gray-800">
             카드뉴스 제안
@@ -178,7 +159,6 @@ export default function CardNewsPreview({
               </p>
             )}
           </div>
-          
           <div>
             <h4 className="text-sm font-medium text-gray-500 mb-1">본문</h4>
             {isEditing ? (
@@ -194,7 +174,6 @@ export default function CardNewsPreview({
               </p>
             )}
           </div>
-          
           <div>
             <h4 className="text-sm font-medium text-gray-500 mb-1">이미지 프롬프트</h4>
             {isEditing ? (
@@ -211,17 +190,51 @@ export default function CardNewsPreview({
             )}
           </div>
         </div>
+        {/* 카드뉴스 제안 - 페이지 이동 버튼 (박스 내부 하단) */}
+        <div className="flex justify-center gap-2 mt-6">
+          {cardNews.pages.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentPage(idx)}
+              className={`w-8 h-8 rounded-full border text-sm font-semibold transition-colors ${
+                currentPage === idx
+                  ? 'bg-blue-500 text-white border-blue-500'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'
+              }`}
+            >
+              {idx + 1}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 생성된 이미지 */}
-      <div className="border rounded-lg p-4 bg-white shadow-sm mt-4">
+      <div className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm mt-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b">
           이미지 생성
         </h3>
         <div className="space-y-4">
+          {/* 스타일 선택 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              이미지 추가 요청사항
+              스타일 (선택사항)
+            </label>
+            <select
+              value={styleOption}
+              onChange={(e) => onStyleOptionChange(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">선택안함</option>
+              <option value="일러스트">일러스트</option>
+              <option value="실사 사진">실사 사진</option>
+              <option value="아이콘 중심">아이콘 중심</option>
+              <option value="3D그래픽">3D그래픽</option>
+            </select>
+          </div>
+          {/* 이미지 추가 요청사항 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              이미지 추가 요청사항 (선택사항)
             </label>
             <textarea
               value={additionalRequests}
@@ -231,7 +244,6 @@ export default function CardNewsPreview({
               rows={3}
             />
           </div>
-
           <div className="flex justify-center">
             <button
               onClick={() => onGenerateImages(currentPage)}
@@ -251,9 +263,9 @@ export default function CardNewsPreview({
               )}
             </button>
           </div>
-
+          {/* 이미지 렌더링 영역 */}
           {images[currentPage] ? (
-            <div className="relative">
+            <div className="relative flex flex-col items-center mt-4">
               <Image
                 src={images[currentPage]}
                 alt={`카드 ${currentPage + 1}`}
@@ -261,19 +273,28 @@ export default function CardNewsPreview({
                 height={400}
                 className="w-full max-w-md mx-auto rounded-lg shadow-md"
               />
-              <button
-                onClick={() => downloadImage(images[currentPage], currentPage)}
-                className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
-                title="이미지 다운로드"
-              >
-                <Download className="w-4 h-4" />
-              </button>
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
               이미지가 생성되지 않았습니다. 이미지 생성 버튼을 클릭하여 현재 카드의 이미지를 생성해주세요.
             </div>
           )}
+        </div>
+        {/* 이미지 생성 - 페이지 이동 버튼 (박스 내부 하단) */}
+        <div className="flex justify-center gap-2 mt-6">
+          {cardNews.pages.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentPage(idx)}
+              className={`w-8 h-8 rounded-full border text-sm font-semibold transition-colors ${
+                currentPage === idx
+                  ? 'bg-green-500 text-white border-green-500'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-green-100'
+              }`}
+            >
+              {idx + 1}
+            </button>
+          ))}
         </div>
       </div>
 
